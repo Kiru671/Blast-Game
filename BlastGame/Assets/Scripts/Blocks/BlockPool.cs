@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -11,7 +10,6 @@ public class BlockPool : MonoBehaviour
     [SerializeField] private int defaultCapacity = 50;
     [SerializeField] private int maxSize = 100;
     
-
     void Start()
     {
         _pool = new ObjectPool<Block>(
@@ -22,6 +20,21 @@ public class BlockPool : MonoBehaviour
             collectionCheck: false,
             defaultCapacity,
             maxSize);
+            
+        PreWarmPool();
+    }
+
+    private void PreWarmPool()
+    {
+        List<Block> tempBlocks = new List<Block>();
+        for (int i = 0; i < defaultCapacity; i++)
+        {
+            tempBlocks.Add(_pool.Get());
+        }
+        foreach (var block in tempBlocks)
+        {
+            _pool.Release(block);
+        }
     }
 
     private Block CreatePooledItem()
