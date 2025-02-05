@@ -66,7 +66,7 @@ public class Block : MonoBehaviour
         }
     }
 
-    private void UpdateSprite()
+    public void UpdateSprite()
     {
         if (spriteRenderer == null)
         {
@@ -93,7 +93,7 @@ public class Block : MonoBehaviour
         int spriteIndex = 0; // Default sprite
         if (GroupSize >= 5 && GroupSize <= 6)
             spriteIndex = 1;
-        else if (GroupSize >= 7 && GroupSize <= 8)
+        else if (GroupSize >= 7 && GroupSize < 9)
             spriteIndex = 2;
         else if (GroupSize >= 9)
             spriteIndex = 3;

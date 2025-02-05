@@ -422,8 +422,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rowWidth: 10
   rowHeight: 10
-  blockSpacing: 2.2
+  blockSpacing: 2.3
   blockPool: {fileID: 1770432487}
+  GridBlocks:
+  - {fileID: 486212831024892324, guid: 27728cdfe2c6bf640914b856dff786d9, type: 3}
 --- !u!4 &1693591011
 Transform:
   m_ObjectHideFlags: 0

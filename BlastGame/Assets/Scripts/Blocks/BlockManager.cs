@@ -15,6 +15,7 @@ public class BlockManager : MonoBehaviour
     private Block[,] tileMap;
     public List<Block> GridBlocks;
     private HashSet<Vector2Int> visitedPositions;
+    private bool isInitialized = false;
 
     void Awake()
     {  
@@ -23,17 +24,30 @@ public class BlockManager : MonoBehaviour
         if (tileMap == null)
         {
             Debug.LogError("❌ tileMap is NULL after initialization!");
+            return;
+        }
+
+        if (blockPool == null)
+        {
+            Debug.LogError("❌ BlockPool reference is missing!");
+            return;
         }
 
         GridBlocks = new List<Block>();
         visitedPositions = new HashSet<Vector2Int>();
+        isInitialized = true;
     }
 
     void Start()
     {
+        if (!isInitialized)
+        {
+            Debug.LogError("❌ BlockManager not properly initialized!");
+            return;
+        }
+        
         PopulateGrid();
     }
-
 
     private void PopulateGrid()
     {
@@ -48,23 +62,41 @@ public class BlockManager : MonoBehaviour
 
     private void CreateBlockAt(Vector2Int position)
     {
+        // First, ensure the position is valid
+        if (!IsValidPosition(position))
+        {
+            Debug.LogError($"❌ Attempted to create block at invalid position {position}");
+            return;
+        }
+
+        // Get a block from the pool
         Block block = blockPool.Get();
+        if (block == null)
+        {
+            Debug.LogError("❌ Failed to get block from pool");
+            return;
+        }
+
+        // Generate random color
         Block.BlockColor randomColor = (Block.BlockColor)Random.Range(0, System.Enum.GetValues(typeof(Block.BlockColor)).Length);
     
+        // Set position
         block.transform.position = new Vector3(
             position.x * blockSpacing,
             position.y * blockSpacing,
             0
         );
 
-        block.Initialize(randomColor, position, this);
-
+        // Store the block in the tileMap BEFORE initializing it
+        // This ensures the block is in the tileMap when Initialize triggers any callbacks
         tileMap[position.x, position.y] = block;
-        Debug.Log(tileMap[position.x, position.y]);
         GridBlocks.Add(block);
-        
-    }
 
+        // Initialize the block
+        block.Initialize(randomColor, position, this);
+        
+        Debug.Log($"✅ Created block at {position} with color {randomColor}");
+    }
 
     public int GetGroupSize(Block block)
     {
@@ -81,10 +113,15 @@ public class BlockManager : MonoBehaviour
         }
 
         Block storedBlock = tileMap[block.GridPosition.x, block.GridPosition.y];
-
         if (storedBlock == null)
         {
-            Debug.LogError($"❌ GetGroupSize: No block found at {block.GridPosition} in tileMap.");
+            Debug.LogError($"❌ GetGroupSize: No block found at {block.GridPosition} in tileMap");
+            return 0;
+        }
+
+        if (storedBlock != block)
+        {
+            Debug.LogError($"❌ GetGroupSize: Block mismatch at {block.GridPosition}");
             return 0;
         }
 
@@ -111,19 +148,17 @@ public class BlockManager : MonoBehaviour
             return 0;
         }
 
-        HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
+        visitedPositions.Clear(); // Clear the visited set before starting new search
         Queue<Vector2Int> toVisit = new Queue<Vector2Int>();
+        List<Block> connectedBlocks = new List<Block>(); // Keep track of all connected blocks
     
         toVisit.Enqueue(startPosition);
-        visited.Add(startPosition);
+        visitedPositions.Add(startPosition);
+        connectedBlocks.Add(startBlock); // Add the first block
     
-        int count = 0;
-
         while (toVisit.Count > 0)
         {
             Vector2Int currentPos = toVisit.Dequeue();
-            count++;
-
             Debug.Log($"🔍 Checking Block at {currentPos}");
 
             Vector2Int[] directions = new Vector2Int[]
@@ -144,7 +179,7 @@ public class BlockManager : MonoBehaviour
                     continue;
                 }
 
-                if (visited.Contains(neighborPos))
+                if (visitedPositions.Contains(neighborPos))
                 {
                     Debug.Log($"⏭️ Already visited {neighborPos}");
                     continue;
@@ -156,16 +191,24 @@ public class BlockManager : MonoBehaviour
                 {
                     Debug.Log($"✅ Adding neighbor at {neighborPos}");
                     toVisit.Enqueue(neighborPos);
-                    visited.Add(neighborPos);
+                    visitedPositions.Add(neighborPos);
+                    connectedBlocks.Add(neighbor); // Add the connected block to our list
                 }
             }
         }
 
-        Debug.Log($"✅ Total connected blocks for color {color}: {count}");
-        return count;
-    }
+        int groupSize = connectedBlocks.Count;
+        Debug.Log($"✅ Total connected blocks for color {color}: {groupSize}");
 
-    
+        // Update all blocks in the connected group with their group size
+        foreach (Block block in connectedBlocks)
+        {
+            block.GroupSize = groupSize;
+            block.UpdateSprite(); // This will trigger the sprite update based on the new group size
+        }
+
+        return groupSize;
+    }
 
     private bool IsValidPosition(Vector2Int position)
     {
