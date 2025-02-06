@@ -61,11 +61,11 @@ public class Block : MonoBehaviour
 
     public void UpdateGroupSize()
     {
-        if (blockManager != null)
+        if (blockManager != null && !isFalling)
         {
             int previousGroupSize = GroupSize;
             GroupSize = blockManager.GetGroupSize(this);
-            
+        
             if (previousGroupSize != GroupSize)
             {
                 UpdateSprite();

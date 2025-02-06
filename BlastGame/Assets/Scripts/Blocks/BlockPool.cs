@@ -10,6 +10,7 @@ public class BlockPool : MonoBehaviour
     [SerializeField] private int defaultCapacity = 50;
     [SerializeField] private int maxSize = 100;
     
+    
     void Awake()
     {
         _pool = new ObjectPool<Block>(

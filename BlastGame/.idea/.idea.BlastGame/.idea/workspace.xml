@@ -6,10 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="f45626cf-2118-4f0e-9482-426a67b2bee2" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BlastGame/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BlastGame/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Block.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Block.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Blocks/Block.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Blocks/Block.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Blocks/BlockManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Blocks/BlockManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Blocks/BlockPool.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Blocks/BlockPool.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,10 +77,10 @@
       </option>
       <method v="2" />
     </configuration>
-    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="40204">
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="50064">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
-      <option name="pid" value="40204" />
+      <option name="pid" value="50064" />
       <option name="projectPathOnTarget" />
       <option name="runtimes">
         <list>
@@ -104,6 +104,7 @@
       <workItem from="1738225412374" duration="3281000" />
       <workItem from="1738655759008" duration="11337000" />
       <workItem from="1738742463342" duration="8075000" />
+      <workItem from="1738827975911" duration="11361000" />
     </task>
     <servers />
   </component>

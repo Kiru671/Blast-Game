@@ -47,8 +47,6 @@ public class BlockManager : MonoBehaviour
 
     public void HandleBlockClick(Block clickedBlock)
     {
-        if (isProcessing) return; // Prevent multiple clicks while processing
-
         StartCoroutine(ProcessBlockClick(clickedBlock));
     }
 
@@ -81,7 +79,8 @@ public class BlockManager : MonoBehaviour
             // Once all blocks have settled, scan and update groups
             yield return StartCoroutine(ScanAndAssignGroups());
         }
-
+        FillEmptySpaces();
+        yield return StartCoroutine(ApplyGravity());
         isProcessing = false;
     }
 
@@ -174,32 +173,34 @@ public class BlockManager : MonoBehaviour
 
     private void FillEmptySpaces()
     {
+        Dictionary<int, int> emptySpacesPerColumn = new Dictionary<int, int>();
+
+        // Step 1: Identify empty spaces per column
         for (int x = 0; x < rowWidth; x++)
         {
-            List<Block> availableBlocks = GetBlocksAboveGrid(x);
             int emptyCount = CountEmptySpacesInColumn(x);
-
-            while (emptyCount > 0)
+            if (emptyCount > 0)
             {
-                if (availableBlocks.Count > 0)
-                {
-                    // Move an existing block into the empty spot
-                    Block block = availableBlocks[0];
-                    availableBlocks.RemoveAt(0);
-
-                    Vector2Int newPos = FindLowestEmptySpace(x);
-                    MoveBlockToGrid(block, newPos);
-                }
-                else
-                {
-                    // If no blocks are available above, pull from the pool
-                    SpawnBlockAboveGrid(x);
-                }
-            
-                emptyCount--;
+                emptySpacesPerColumn[x] = emptyCount;
             }
         }
+
+        // Step 2: Spawn blocks for all missing spaces
+        foreach (var entry in emptySpacesPerColumn)
+        {
+            int column = entry.Key;
+            int missingBlocks = entry.Value;
+        
+            for (int i = 0; i < missingBlocks; i++)
+            {
+                SpawnBlockAboveGrid(column, i);  // Pass an index for proper offset
+            }
+        }
+
+        // Step 3: Apply gravity after all blocks are spawned
+        StartCoroutine(ApplyGravity());
     }
+
 
     private void MoveBlockToGrid(Block block, Vector2Int newPos)
     {
@@ -300,6 +301,8 @@ public class BlockManager : MonoBehaviour
     
     private int CountConnectedBlocks(Vector2Int startPosition, Block.BlockColor color)
     {
+        if (!IsValidPosition(startPosition)) return 0; // Ensure startPosition is within valid range
+        
         Block startBlock = tileMap[startPosition.x, startPosition.y];
 
         visitedPositions.Clear(); // Clear the visited set before starting new search
@@ -380,23 +383,31 @@ public class BlockManager : MonoBehaviour
                position.y >= 0 && position.y < rowHeight;
     }
 
-    public void SpawnBlockAboveGrid(int column)
+    public void SpawnBlockAboveGrid(int column, int offset)
     {
-        if (column < 0 || column >= rowWidth) return;
-
         Block block = blockPool.Get();
+        if (block == null)
+        {
+            Debug.LogError("❌ Failed to get block from pool");
+            return;
+        }
+
         Block.BlockColor randomColor = (Block.BlockColor)Random.Range(0, System.Enum.GetValues(typeof(Block.BlockColor)).Length);
-    
-        // Position above the grid
-        Vector2Int abovePosition = new Vector2Int(column, rowHeight);
+
+        // Spawn higher for each missing block
+        Vector2Int abovePosition = new Vector2Int(column, rowHeight + offset);
         Vector3 spawnPosition = new Vector3(
             column * blockSpacing,
-            rowHeight * blockSpacing + blockSpacing, // Above the grid
+            (rowHeight + offset) * blockSpacing, // Stacked above the grid
             0
         );
 
         block.transform.position = spawnPosition;
         block.Initialize(randomColor, abovePosition, this);
         GridBlocks.Add(block);
+
+        // ✅ Place the block at the topmost available row in tileMap
+        Vector2Int newPos = FindLowestEmptySpace(column);
+        MoveBlockToGrid(block, newPos);
     }
 }
