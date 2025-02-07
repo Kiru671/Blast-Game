@@ -6,12 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="f45626cf-2118-4f0e-9482-426a67b2bee2" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BlastGame/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BlastGame/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Block.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Block.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Blocks/Block.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Blocks/Block.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Blocks/BlockCurator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Blocks/BlockCurator.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Blocks/BlockManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Blocks/BlockManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/Packages/com.unity.testtools.codecoverage/Settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,7 +105,7 @@
       <workItem from="1738742463342" duration="8075000" />
       <workItem from="1738827975911" duration="11361000" />
       <workItem from="1738915510014" duration="1865000" />
-      <workItem from="1738936231431" duration="1037000" />
+      <workItem from="1738936231431" duration="3832000" />
     </task>
     <servers />
   </component>

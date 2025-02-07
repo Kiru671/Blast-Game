@@ -29,13 +29,13 @@ public class BlockManager : MonoBehaviour
         
         if (blockPool == null)
         {
-            Debug.LogError("❌ BlockPool reference is missing!");
+            Debug.LogError("No BlockPool reference!");
             return;
         }
 
         if (curator == null)
         {
-            Debug.LogError("❌ BlockCurator component is missing!");
+            Debug.LogError("No BlockCurator component!");
             return;
         }
 
@@ -48,7 +48,7 @@ public class BlockManager : MonoBehaviour
     {
         if (!isInitialized)
         {
-            Debug.LogError("❌ BlockManager not properly initialized!");
+            Debug.LogError("BlockManager not initialized!");
             return;
         }
         
@@ -81,14 +81,10 @@ public class BlockManager : MonoBehaviour
     {
         isProcessing = true;
 
-        // Get only the connected blocks from the clicked one
         List<Block> connectedBlocks = GetConnectedBlocks(clickedBlock);
 
-        if (connectedBlocks.Count >= 2) // Only remove groups of 2+
+        if (connectedBlocks.Count >= 2)
         {
-            Debug.Log($"Processing click on block at {clickedBlock.GridPosition} with {connectedBlocks.Count} connected blocks");
-
-            // Remove only the clicked group
             foreach (Block block in connectedBlocks)
             {
                 Vector2Int pos = block.GridPosition;
@@ -97,13 +93,10 @@ public class BlockManager : MonoBehaviour
                 blockPool.Release(block);
             }
 
-            // Short delay for visual feedback
             yield return new WaitForSeconds(0.2f);
 
-            // Apply gravity and wait until all blocks settle
             yield return StartCoroutine(ApplyGravity());
 
-            // Once all blocks have settled, scan and update groups
             yield return StartCoroutine(ScanAndAssignGroups());
         }
         FillEmptySpaces();
@@ -171,7 +164,6 @@ public class BlockManager : MonoBehaviour
                             0
                         );
 
-                        // Update grid references
                         tileMap[x, y] = null;
                         tileMap[x, y - 1] = block;
                         block.SetGridPosition(newPos);
@@ -181,15 +173,13 @@ public class BlockManager : MonoBehaviour
                 }
             }
 
-            // Wait a short moment if movement happened
             if (moved)
             {
-                yield return new WaitForSeconds(0.1f); // Adjust if needed
+                yield return new WaitForSeconds(0.1f);
             }
         }
-        while (moved); // Keep looping until no blocks move
+        while (moved);
 
-        // Gravity is now finished, update groups
         StartCoroutine(ScanAndAssignGroups());
     }
 
@@ -197,7 +187,6 @@ public class BlockManager : MonoBehaviour
     {
         Dictionary<int, int> emptySpacesPerColumn = new Dictionary<int, int>();
 
-        // Step 1: Identify empty spaces per column
         for (int x = 0; x < rowWidth; x++)
         {
             int emptyCount = CountEmptySpacesInColumn(x);
@@ -207,7 +196,6 @@ public class BlockManager : MonoBehaviour
             }
         }
 
-        // Step 2: Spawn blocks for all missing spaces
         foreach (var entry in emptySpacesPerColumn)
         {
             int column = entry.Key;
@@ -215,11 +203,10 @@ public class BlockManager : MonoBehaviour
         
             for (int i = 0; i < missingBlocks; i++)
             {
-                SpawnBlockAboveGrid(column, i);  // Pass an index for proper offset
+                SpawnBlockAboveGrid(column, i);
             }
         }
 
-        // Step 3: Apply gravity after all blocks are spawned
         StartCoroutine(ApplyGravity());
     }
 
@@ -260,7 +247,7 @@ public class BlockManager : MonoBehaviour
                 return new Vector2Int(column, y);
             }
         }
-        return new Vector2Int(column, rowHeight - 1); // Fallback (should not happen)
+        return new Vector2Int(column, rowHeight - 1);
     }
 
     private IEnumerator ScanAndAssignGroups()
@@ -269,7 +256,7 @@ public class BlockManager : MonoBehaviour
         {
             if (block != null)
             {
-                block.UpdateGroupSize(); // Only updates, no removal
+                block.UpdateGroupSize();
             }
         }
         yield return null;
@@ -282,7 +269,7 @@ public class BlockManager : MonoBehaviour
         Block block = blockPool.Get();
         if (block == null)
         {
-            Debug.LogError("❌ Failed to get block from pool");
+            Debug.LogError("Failed to get block from pool");
             return;
         }
 
@@ -300,35 +287,32 @@ public class BlockManager : MonoBehaviour
 
     private Block.BlockColor GetRandomColor()
     {
-        // Ensure colorCount is within valid range
         colorCount = Mathf.Clamp(colorCount, 2, System.Enum.GetValues(typeof(Block.BlockColor)).Length);
         return (Block.BlockColor)Random.Range(0, colorCount);
     }
 
     public int GetGroupSize(Block block)
     {
-        int groupSize = CountConnectedBlocks(block.GridPosition, block.Color);
-        return groupSize;
+        return CountConnectedBlocks(block.GridPosition, block.Color);
     }
     
     private int CountConnectedBlocks(Vector2Int startPosition, Block.BlockColor color)
     {
-        if (!IsValidPosition(startPosition)) return 0; // Ensure startPosition is within valid range
+        if (!IsValidPosition(startPosition)) return 0;
         
         Block startBlock = tileMap[startPosition.x, startPosition.y];
 
-        visitedPositions.Clear(); // Clear the visited set before starting new search
+        visitedPositions.Clear();
         Queue<Vector2Int> toVisit = new Queue<Vector2Int>();
-        List<Block> connectedBlocks = new List<Block>(); // Keep track of all connected blocks
+        List<Block> connectedBlocks = new List<Block>();
     
         toVisit.Enqueue(startPosition);
         visitedPositions.Add(startPosition);
-        connectedBlocks.Add(startBlock); // Add the first block
+        connectedBlocks.Add(startBlock);
     
         while (toVisit.Count > 0)
         {
             Vector2Int currentPos = toVisit.Dequeue();
-            Debug.Log($"🔍 Checking Block at {currentPos}");
 
             Vector2Int[] directions = new Vector2Int[]
             {
@@ -342,38 +326,26 @@ public class BlockManager : MonoBehaviour
             {
                 Vector2Int neighborPos = currentPos + dir;
 
-                if (!IsValidPosition(neighborPos))
-                {
-                    Debug.Log($"⏭️ Skipping invalid position {neighborPos}");
+                if (!IsValidPosition(neighborPos) || visitedPositions.Contains(neighborPos))
                     continue;
-                }
-
-                if (visitedPositions.Contains(neighborPos))
-                {
-                    Debug.Log($"⏭️ Already visited {neighborPos}");
-                    continue;
-                }
 
                 Block neighbor = tileMap[neighborPos.x, neighborPos.y];
 
                 if (neighbor != null && neighbor.Color == color)
                 {
-                    Debug.Log($"✅ Adding neighbor at {neighborPos}");
                     toVisit.Enqueue(neighborPos);
                     visitedPositions.Add(neighborPos);
-                    connectedBlocks.Add(neighbor); // Add the connected block to our list
+                    connectedBlocks.Add(neighbor);
                 }
             }
         }
 
         int groupSize = connectedBlocks.Count;
-        Debug.Log($"✅ Total connected blocks for color {color}: {groupSize}");
 
-        // Update all blocks in the connected group with their group size
         foreach (Block block in connectedBlocks)
         {
             block.GroupSize = groupSize;
-            block.UpdateSprite(); // This will trigger the sprite update based on the new group size
+            block.UpdateSprite();
         }
 
         return groupSize;
@@ -395,13 +367,12 @@ public class BlockManager : MonoBehaviour
         return position.x >= 0 && position.x < rowWidth &&
                position.y >= 0 && position.y < rowHeight;
     }
-
     public void SpawnBlockAboveGrid(int column, int offset)
     {
         Block block = blockPool.Get();
         if (block == null)
         {
-            Debug.LogError("❌ Failed to get block from pool");
+            Debug.LogError("Couldn't get block from pool");
             return;
         }
 

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class BlockCurator : MonoBehaviour
+public class BlockCurator : MonoBehaviour // Not really working as intended as of now...
 {
     [SerializeField, Range(3, 5)] private int minimumGroupSize = 3;
     [SerializeField, Range(1, 10)] private int minimumInitialGroups = 3;
@@ -14,7 +14,7 @@ public class BlockCurator : MonoBehaviour
     {
         if (blockManager == null)
         {
-            Debug.LogError("❌ BlockCurator requires a BlockManager component!");
+            Debug.LogError("BlockCurator needs a BlockManager component.");
             enabled = false;
             return;
         }
@@ -27,7 +27,6 @@ public class BlockCurator : MonoBehaviour
 
     public Block.BlockColor GetColorForPosition(Vector2Int position, Dictionary<Vector2Int, Block.BlockColor> existingBlocks)
     {
-        // Always try to create a group if we haven't met our minimum
         if (currentInitialGroups < minimumInitialGroups)
         {
             Block.BlockColor groupColor = GetColorForGroup(position, existingBlocks);
@@ -38,13 +37,11 @@ public class BlockCurator : MonoBehaviour
             }
         }
 
-        // If we've met our minimum groups or can't create one, return random color
         return (Block.BlockColor)Random.Range(0, blockManager.ColorCount);
     }
 
     public Block.BlockColor GetColorForSpawn(Vector2Int position, Dictionary<Vector2Int, Block.BlockColor> existingBlocks)
     {
-        // Try to create a group to prevent deadlocks
         if (Random.value <= spawnGroupProbability)
         {
             Block.BlockColor groupColor = GetColorForGroup(position, existingBlocks);
@@ -67,26 +64,23 @@ public class BlockCurator : MonoBehaviour
             Vector2Int.left
         };
 
-        // Check each available color
         for (int i = 0; i < blockManager.ColorCount; i++)
         {
             Block.BlockColor testColor = (Block.BlockColor)i;
             List<Vector2Int> groupPositions = new List<Vector2Int>();
             groupPositions.Add(position);
 
-            // Check neighbors recursively
             HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
             visited.Add(position);
             CheckNeighborsRecursively(position, testColor, existingBlocks, visited, groupPositions);
 
-            // If we found enough positions for a group
             if (groupPositions.Count >= minimumGroupSize)
             {
                 return testColor;
             }
         }
 
-        return Block.BlockColor.Pink; // Invalid color marker
+        return Block.BlockColor.Pink;
     }
 
     private void CheckNeighborsRecursively(
@@ -116,7 +110,6 @@ public class BlockCurator : MonoBehaviour
 
             visited.Add(neighborPos);
 
-            // If neighbor exists and has same color or position is empty
             if (!existingBlocks.TryGetValue(neighborPos, out Block.BlockColor neighborColor) ||
                 neighborColor == color)
             {

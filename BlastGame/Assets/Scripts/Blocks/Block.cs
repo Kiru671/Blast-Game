@@ -35,15 +35,13 @@ public class Block : MonoBehaviour
         if (spriteRenderer == null)
         {
             spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
-            Debug.Log("SpriteRenderer added to Block");
         }
     }
 
     private void OnMouseDown()
     {
-        Debug.Log("Block clicked");
-        if (isFalling) return; // Prevent clicking on moving blocks
-        if (blockManager != null && GroupSize >= 2) // Only remove groups of 3 or more
+        if (isFalling) return;
+        if (blockManager != null && GroupSize >= 2)
         {
             blockManager.HandleBlockClick(this);
         }
@@ -100,7 +98,6 @@ public class Block : MonoBehaviour
         if (spriteIndex < colorSet.groupSizeSprites.Length)
         {
             spriteRenderer.sprite = colorSet.groupSizeSprites[spriteIndex];
-            Debug.Log($"✅ Updated sprite for {Color} block with group size {GroupSize}");
         }
     }
 
