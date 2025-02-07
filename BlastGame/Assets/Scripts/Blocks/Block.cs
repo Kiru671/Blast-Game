@@ -8,7 +8,8 @@ public class Block : MonoBehaviour
         Blue,
         Green,
         Yellow,
-        Purple
+        Purple,
+        Pink        
     }
 
     [System.Serializable]

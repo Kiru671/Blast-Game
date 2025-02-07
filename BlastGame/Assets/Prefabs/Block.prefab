@@ -131,12 +131,6 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 8641c3d3a68591c43841701b372b938a, type: 3}
     - {fileID: 21300000, guid: 6f9ac175296b12b44a0f2bd50a4cd5b3, type: 3}
     - {fileID: 21300000, guid: 5864cbdc6e7019d4d82718333e1a8561, type: 3}
-  - color: 4
-    groupSizeSprites:
-    - {fileID: 21300000, guid: a5dd7a7b9da4df849a30a11de771ecd4, type: 3}
-    - {fileID: 21300000, guid: 8641c3d3a68591c43841701b372b938a, type: 3}
-    - {fileID: 21300000, guid: 6f9ac175296b12b44a0f2bd50a4cd5b3, type: 3}
-    - {fileID: 21300000, guid: 5864cbdc6e7019d4d82718333e1a8561, type: 3}
   - color: 5
     groupSizeSprites:
     - {fileID: 21300000, guid: 45609d812002a2f49aa671f11ea6ccc1, type: 3}

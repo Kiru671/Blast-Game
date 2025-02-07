@@ -225,7 +225,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 819967572}
-  - component: {fileID: 819967571}
+  - component: {fileID: 819967573}
   m_Layer: 0
   m_Name: BlockCurator
   m_TagString: Untagged
@@ -233,22 +233,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &819967571
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 819967570}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f88c668c2bc6fd04eb82ed24d8303a59, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  initialBlastableGroups: 50
-  minGroupSize: 2
-  blockManager: {fileID: 1693591010}
-  blockPool: {fileID: 1770432487}
 --- !u!4 &819967572
 Transform:
   m_ObjectHideFlags: 0
@@ -264,6 +248,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &819967573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 819967570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eafb07d3e1545624186ea91c5b57eaaa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minimumGroupSize: 5
+  minimumInitialGroups: 10
+  spawnGroupProbability: 0.7
+  blockManager: {fileID: 1693591010}
 --- !u!1 &914183904
 GameObject:
   m_ObjectHideFlags: 0
@@ -472,9 +472,10 @@ MonoBehaviour:
   rowHeight: 10
   blockSpacing: 2.3
   blockPool: {fileID: 1770432487}
-  curator: {fileID: 819967571}
   fallSpeed: 10
+  colorCount: 6
   GridBlocks: []
+  curator: {fileID: 819967573}
 --- !u!4 &1693591011
 Transform:
   m_ObjectHideFlags: 0

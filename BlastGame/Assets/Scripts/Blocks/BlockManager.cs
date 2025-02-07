@@ -9,23 +9,33 @@ public class BlockManager : MonoBehaviour
     [SerializeField] private float blockSpacing = 1f;
     [SerializeField] private BlockPool blockPool;
     [SerializeField] private float fallSpeed = 10f;
+    [SerializeField, Range(2,6)] private int colorCount = 6;
     
     public float BlockSpacing => blockSpacing;
     public int RowWidth => rowWidth;
     public int RowHeight => rowHeight;
+    public int ColorCount => colorCount;
 
     private Block[,] tileMap;
     public List<Block> GridBlocks;
     private HashSet<Vector2Int> visitedPositions;
     private bool isInitialized = false;
     private bool isProcessing = false;
+    [SerializeField] private BlockCurator curator;
 
     void Awake()
     {  
         tileMap = new Block[rowWidth, rowHeight];
+        
         if (blockPool == null)
         {
             Debug.LogError("❌ BlockPool reference is missing!");
+            return;
+        }
+
+        if (curator == null)
+        {
+            Debug.LogError("❌ BlockCurator component is missing!");
             return;
         }
 
@@ -43,6 +53,23 @@ public class BlockManager : MonoBehaviour
         }
         
         PopulateGrid();
+    }
+
+    private void PopulateGrid()
+    {
+        Dictionary<Vector2Int, Block.BlockColor> placedBlocks = new Dictionary<Vector2Int, Block.BlockColor>();
+        curator.ResetInitialGroupCount();
+
+        for (int x = 0; x < rowWidth; x++)
+        {
+            for (int y = 0; y < rowHeight; y++)
+            {
+                Vector2Int position = new Vector2Int(x, y);
+                Block.BlockColor color = curator.GetColorForPosition(position, placedBlocks);
+                CreateBlockAt(position, color);
+                placedBlocks[position] = color;
+            }
+        }
     }
 
     public void HandleBlockClick(Block clickedBlock)
@@ -83,9 +110,6 @@ public class BlockManager : MonoBehaviour
         yield return StartCoroutine(ApplyGravity());
         isProcessing = false;
     }
-
-
-
 
     private List<Block> GetConnectedBlocks(Block startBlock)
     {
@@ -169,8 +193,6 @@ public class BlockManager : MonoBehaviour
         StartCoroutine(ScanAndAssignGroups());
     }
 
-
-
     private void FillEmptySpaces()
     {
         Dictionary<int, int> emptySpacesPerColumn = new Dictionary<int, int>();
@@ -200,7 +222,6 @@ public class BlockManager : MonoBehaviour
         // Step 3: Apply gravity after all blocks are spawned
         StartCoroutine(ApplyGravity());
     }
-
 
     private void MoveBlockToGrid(Block block, Vector2Int newPos)
     {
@@ -254,22 +275,9 @@ public class BlockManager : MonoBehaviour
         yield return null;
     }
 
-
-    private void PopulateGrid()
+    private void CreateBlockAt(Vector2Int position, Block.BlockColor color)
     {
-        for (int x = 0; x < rowWidth; x++)
-        {
-            for (int y = 0; y < rowHeight; y++) // Normal grid
-            {
-                CreateBlockAt(new Vector2Int(x, y));
-            }
-        }
-    }
-
-
-    private void CreateBlockAt(Vector2Int position)
-    {
-        if (!IsValidPosition(position) && position.y < rowHeight) return; // Allow positions above the grid
+        if (!IsValidPosition(position) && position.y < rowHeight) return;
 
         Block block = blockPool.Get();
         if (block == null)
@@ -277,8 +285,6 @@ public class BlockManager : MonoBehaviour
             Debug.LogError("❌ Failed to get block from pool");
             return;
         }
-
-        Block.BlockColor randomColor = (Block.BlockColor)Random.Range(0, System.Enum.GetValues(typeof(Block.BlockColor)).Length);
 
         block.transform.position = new Vector3(
             position.x * blockSpacing,
@@ -289,9 +295,15 @@ public class BlockManager : MonoBehaviour
         tileMap[position.x, position.y] = block;
         GridBlocks.Add(block);
 
-        block.Initialize(randomColor, position, this);
+        block.Initialize(color, position, this);
     }
 
+    private Block.BlockColor GetRandomColor()
+    {
+        // Ensure colorCount is within valid range
+        colorCount = Mathf.Clamp(colorCount, 2, System.Enum.GetValues(typeof(Block.BlockColor)).Length);
+        return (Block.BlockColor)Random.Range(0, colorCount);
+    }
 
     public int GetGroupSize(Block block)
     {
@@ -366,6 +378,7 @@ public class BlockManager : MonoBehaviour
 
         return groupSize;
     }
+
     private int CountEmptySpacesInColumn(int column)
     {
         int count = 0;
@@ -392,21 +405,34 @@ public class BlockManager : MonoBehaviour
             return;
         }
 
-        Block.BlockColor randomColor = (Block.BlockColor)Random.Range(0, System.Enum.GetValues(typeof(Block.BlockColor)).Length);
+        // Get existing blocks for context
+        Dictionary<Vector2Int, Block.BlockColor> existingBlocks = new Dictionary<Vector2Int, Block.BlockColor>();
+        for (int x = 0; x < rowWidth; x++)
+        {
+            for (int y = 0; y < rowHeight; y++)
+            {
+                if (tileMap[x, y] != null)
+                {
+                    existingBlocks[new Vector2Int(x, y)] = tileMap[x, y].Color;
+                }
+            }
+        }
+
+        Vector2Int spawnPosition = new Vector2Int(column, rowHeight - 1);
+        Block.BlockColor color = curator.GetColorForSpawn(spawnPosition, existingBlocks);
 
         // Spawn higher for each missing block
         Vector2Int abovePosition = new Vector2Int(column, rowHeight + offset);
-        Vector3 spawnPosition = new Vector3(
+        Vector3 spawnPosition3D = new Vector3(
             column * blockSpacing,
-            (rowHeight + offset) * blockSpacing, // Stacked above the grid
+            (rowHeight + offset) * blockSpacing,
             0
         );
 
-        block.transform.position = spawnPosition;
-        block.Initialize(randomColor, abovePosition, this);
+        block.transform.position = spawnPosition3D;
+        block.Initialize(color, abovePosition, this);
         GridBlocks.Add(block);
 
-        // ✅ Place the block at the topmost available row in tileMap
         Vector2Int newPos = FindLowestEmptySpace(column);
         MoveBlockToGrid(block, newPos);
     }
